@@ -98,24 +98,3 @@ Remember to:
 
 
 
-judge0-ide/
-├── js/
-│   ├── core/
-│   │   ├── ide.js            # Core IDE functionality
-│   │   └── compiler.js       # Compilation handling
-│   ├── ai/
-│   │   ├── chat.js          # Chat core functionality
-│   │   ├── codeAnalyzer.js  # Code analysis and fixes
-│   │   └── aiService.js     # AI service integration
-│   ├── ui/
-│   │   ├── chatUI.js        # Chat interface components
-│   │   └── codeSelection.js # Code selection handling
-│   └── utils/
-│       ├── eventBus.js      # Event management
-│       └── logger.js        # Logging utility
-├── tests/
-│   ├── unit/
-│   │   ├── chat.test.js
-│   │   └── codeAnalyzer.test.js
-│   └── integration/
-│       └── aiFeatures.test.js
