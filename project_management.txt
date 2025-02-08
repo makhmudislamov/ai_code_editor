@@ -1,7 +1,9 @@
+ all the changes can be done in the ide.js, ui.js and the ide.css file.
+
 DAY 1: Setup and Basic Integration
 1. Environment Setup
-   - Fork and clone the Judge0 IDE repository
-   - Set up local development environment
+   - Fork and clone the Judge0 IDE repository - DONE 
+   - Set up local development environment - DONE 
    - Study the existing codebase structure
 
 2. Chat Interface Implementation
@@ -93,3 +95,27 @@ Remember to:
 - Keep code modular
 - Follow Judge0 IDE's coding standards
 - Monitor performance metrics
+
+
+
+judge0-ide/
+├── js/
+│   ├── core/
+│   │   ├── ide.js            # Core IDE functionality
+│   │   └── compiler.js       # Compilation handling
+│   ├── ai/
+│   │   ├── chat.js          # Chat core functionality
+│   │   ├── codeAnalyzer.js  # Code analysis and fixes
+│   │   └── aiService.js     # AI service integration
+│   ├── ui/
+│   │   ├── chatUI.js        # Chat interface components
+│   │   └── codeSelection.js # Code selection handling
+│   └── utils/
+│       ├── eventBus.js      # Event management
+│       └── logger.js        # Logging utility
+├── tests/
+│   ├── unit/
+│   │   ├── chat.test.js
+│   │   └── codeAnalyzer.test.js
+│   └── integration/
+│       └── aiFeatures.test.js
