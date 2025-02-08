@@ -23,9 +23,13 @@ function uiSignOut() {
     signOutBtn.classList.add("judge0-hidden");
     signOutBtn.querySelector("#judge0-puter-username").innerText = "Sign out";
 
+    /*
+    Uncomment this block to disable the chat func if user is not signed in.
+
     const userInput = document.getElementById("judge0-chat-user-input");
     userInput.disabled = true;
     userInput.placeholder = "Sign in to chat with AI";
+    */
 }
 
 function updateSignInUI() {

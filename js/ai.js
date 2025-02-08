@@ -36,6 +36,113 @@ If their message is unrelated to the code, focus solely on their conversational 
     }
 ];
 
+
+// Single func for handling message processing
+
+async function handleChatMessage(userInputValue) {
+    const userInput = document.getElementById("judge0-chat-user-input");
+    const form = document.getElementById("judge0-chat-form");
+
+    // Input validation
+    if (!userInputValue || userInputValue.trim() === "") {
+        return false;
+    }
+
+    // Set loading state
+    userInput.disabled = true;
+    form.classList.add("loading");
+
+    // Create and display user message
+    const userMessage = document.createElement("div");
+    userMessage.innerText = userInputValue;
+    userMessage.classList.add("ui", "small", "segment", "judge0-message", "judge0-user-message");
+    if (!theme.isLight()) {
+        userMessage.classList.add("inverted");
+    }
+
+    const messages = document.getElementById("judge0-chat-messages");
+    messages.appendChild(userMessage);
+
+
+    // Clear input and scroll to bottom
+    userInput.value = "";
+    messages.scrollTop = messages.scrollHeight;
+
+    // Add message to thread
+    THREAD.push({
+        role: "user",
+        content: `
+User's code:
+${sourceEditor.getValue()}
+
+User's message:
+${userInputValue}
+`.trim()
+    });
+
+    // Create AI message container
+    const aiMessage = document.createElement("div");
+    aiMessage.classList.add("ui", "small", "basic", "segment", "judge0-message");
+    if (!theme.isLight()) {
+        aiMessage.classList.add("inverted");
+    }
+
+    try {
+        // TODO: Replace with actual LLM implementation
+        // Placeholder response for now
+        const aiResponseValue = "This is a placeholder response. LLM integration coming soon.";
+
+        THREAD.push({
+            role: "assistant",
+            content: aiResponseValue
+        });
+
+        // Display AI response with markdown and math rendering
+        aiMessage.innerHTML = DOMPurify.sanitize(aiResponseValue);
+        renderMathInElement(aiMessage, {
+            delimiters: [
+                { left: "\$$", right: "\$$", display: false },
+                { left: "\$$", right: "\$$", display: true }
+            ]
+        });
+        aiMessage.innerHTML = marked.parse(aiMessage.innerHTML);
+
+        messages.appendChild(aiMessage);
+        messages.scrollTop = messages.scrollHeight;
+    } catch (error) {
+        console.error("Error processing message:", error);
+        aiMessage.innerHTML = "Sorry, there was an error processing your message.";
+        messages.appendChild(aiMessage);
+    } finally {
+        // Reset UI state
+        userInput.disabled = false;
+        form.classList.remove("loading");
+        userInput.focus();
+    }
+
+    return true;
+
+    
+}
+
+
+// Event Listeners
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("judge0-chat-form");
+    
+    // Handle form submission (Enter key and button click)
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const userInput = document.getElementById("judge0-chat-user-input");
+        await handleChatMessage(userInput.value.trim());
+    });
+});
+
+
+
+/*
+Previous logic that includes puter.
+
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("judge0-chat-form").addEventListener("submit", async function (event) {
         event.preventDefault();
@@ -108,6 +215,8 @@ ${userInputValue}
         userInput.focus();
     });
 });
+
+*/
 
 document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey) {
