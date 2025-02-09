@@ -1,35 +1,62 @@
 "use strict";
 
-// Define available LLM providers with their specific models
+import ls from "./local_storage.js";
+import LLMSecurity from "./llm_security.js";
+import LLMStorage from "./llm_storage.js";
+
+// Storage and Security Constants
+const STORAGE_PREFIX = "judge0_llm_";
+const STORAGE_VERSION = "v1"; // For future compatibility
+
+// LLM Provider configurations 
 const LLM_PROVIDERS = [
     {
         id: "openai-gpt-4o",
         name: "GPT-4o",
-        provider: "OpenAI"
+        provider: "OpenAI",
+        keyPattern: /^sk-[A-Za-z0-9]{32,}$/ // OpenAI key pattern
     },
     {
         id: "openai-gpt-4o-mini",
         name: "GPT-4o mini",
-        provider: "OpenAI"
+        provider: "OpenAI",
+        keyPattern: /^sk-[A-Za-z0-9]{32,}$/
     },
     {
         id: "openai-o1",
         name: "o1",
-        provider: "OpenAI"
+        provider: "OpenAI",
+        keyPattern: /^sk-[A-Za-z0-9]{32,}$/
     },
     {
         id: "claude-sonnet",
         name: "Claude 3.5 Sonnet",
-        provider: "Anthropic"
+        provider: "Anthropic",
+        keyPattern: /^sk-ant-[A-Za-z0-9]{32,}$/ // Anthropic key pattern
     },
     {
         id: "claude-haiku",
         name: "Claude 3.5 Haiku",
-        provider: "Anthropic"
+        provider: "Anthropic",
+        keyPattern: /^sk-ant-[A-Za-z0-9]{32,}$/
     }
 ];
 
-// Initialize LLM dropdown
+// Error types
+const LLMErrors = {
+    INVALID_KEY: "Invalid API key format",
+    STORAGE_ERROR: "Failed to store API key",
+    KEY_NOT_FOUND: "No API key found for this provider",
+    ENCRYPTION_ERROR: "Failed to secure API key",
+    VALIDATION_ERROR: "API key validation failed"
+};
+
+// Helper function to generate storage key
+function getStorageKey(providerId) {
+    return `${STORAGE_PREFIX}${STORAGE_VERSION}_${providerId}`;
+}
+
+// Initialize LLM dropdown (this was missing)
 function initializeLLMDropdown() {
     const $selectLLM = $("#judge0-llm-provider");
     
@@ -49,10 +76,97 @@ function initializeLLMDropdown() {
         fullTextSearch: true,
         onChange: function(value) {
             console.log("Selected LLM:", value);
-            // TODO: Handle model selection
         }
     });
 }
 
-// Export functions
-export { initializeLLMDropdown, LLM_PROVIDERS };
+function initializeLLMControls() {
+    const saveButton = document.getElementById('judge0-save-api-key');
+    const apiKeyInput = document.getElementById('judge0-api-key');
+    const providerSelect = document.getElementById('judge0-llm-provider');
+    const messageContainer = document.getElementById('judge0-api-message');
+
+    
+
+    // Function to show message
+    function showMessage(message, isError = false) {
+        messageContainer.textContent = message;
+        messageContainer.classList.remove('hidden', 'success', 'error');
+        messageContainer.classList.add(isError ? 'error' : 'success');
+        
+        setTimeout(() => {
+            messageContainer.classList.add('hidden');
+        }, 3000);
+    }
+
+    // Function to set loading state
+    function setLoading(isLoading) {
+        saveButton.classList.toggle('loading', isLoading);
+        apiKeyInput.disabled = isLoading;
+        providerSelect.disabled = isLoading;
+        saveButton.disabled = isLoading;
+    }
+
+    saveButton.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        // Get values
+        const apiKey = apiKeyInput.value.trim();
+        const selectedProvider = providerSelect.value;
+
+        // Basic validation
+        if (!selectedProvider) {
+            showMessage('Please select a provider', true);
+            return;
+        }
+
+        if (!apiKey) {
+            showMessage('Please enter an API key', true);
+            return;
+        }
+
+        // Set loading state
+        setLoading(true);
+
+        try {
+            await LLMStorage.storeApiKey(selectedProvider, apiKey);
+            showMessage('API key saved successfully');
+            
+            // Clear input after successful save
+            apiKeyInput.value = '';
+            
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            // Reset loading state
+            setLoading(false);
+        }
+    });
+
+    // Clear message when input changes
+    apiKeyInput.addEventListener('input', () => {
+        messageContainer.classList.add('hidden');
+    });
+
+    providerSelect.addEventListener('change', () => {
+        messageContainer.classList.add('hidden');
+    });
+}
+
+// Add to DOMContentLoaded
+document.addEventListener("DOMContentLoaded", function () {
+    // Existing initialization
+    initializeLLMDropdown();
+    
+    // Add new initialization
+    initializeLLMControls();
+});
+
+
+// Export existing and new functionality
+export { 
+    initializeLLMDropdown, 
+    LLM_PROVIDERS,
+    LLMErrors,
+    getStorageKey
+};
