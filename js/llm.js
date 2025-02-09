@@ -123,6 +123,11 @@ async function handleDelete(elements) {
  */
 function initializeLLMControls() {
     const elements = initializeUIElements();
+
+    $('#judge0-llm-provider').dropdown({
+        fullTextSearch: true
+    });
+
     
     // Event Listeners
     elements.saveButton.addEventListener('click', async (e) => {

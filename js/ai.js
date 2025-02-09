@@ -1,7 +1,7 @@
 "use strict";
 import theme from "./theme.js";
 import { sourceEditor } from "./ide.js";
-import { initializeLLMDropdown } from "./llm.js";
+import { initializeLLMControls } from "./llm.js";
 
 
 const THREAD = [
@@ -148,7 +148,7 @@ ${userInputValue}
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("judge0-chat-form");
 
-    initializeLLMDropdown();
+    initializeLLMControls();
     
     // Handle form submission (Enter key and button click)
     form.addEventListener("submit", async function (event) {
