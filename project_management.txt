@@ -100,3 +100,39 @@ Remember to:
 
 TODO:
 - markdown: code, math, in ai.js
+
+
+
+So Far:
+1. UI Structure:
+   - LLM provider dropdown
+   - API key input field
+   - Save/Delete buttons with consistent styling
+   - Removed authentication requirement for chat
+   - Fixed styling and spacing issues
+
+Next Steps:
+
+1. Functionality Implementation:
+   - Handle API key storage (securely)
+   - Implement Save/Delete button actions
+   - Add validation for API key input
+   - Handle dropdown selection changes
+
+2. LLM Integration:
+   - Create handlers for different LLM providers
+   - Implement API calls to selected providers
+   - Error handling for API responses
+   - Rate limiting and quota management
+
+3. Chat Enhancement:
+   - Update message handling to use selected LLM
+   - Improve markdown/code rendering
+   - Add loading states during API calls
+   - Handle API errors gracefully
+
+4. Storage/State Management:
+   - Save user preferences (selected LLM)
+   - Secure API key storage
+   - Maintain chat history
+   - Handle session management
