@@ -44,3 +44,50 @@
         display: none !important;
     }
 }
+
+/* LLM Config Section */
+#judge0-llm-config {
+    border-bottom: 1px solid rgba(34,36,38,.15);
+    margin: 0;
+    padding: 1em;
+    width: 100%;
+}
+
+#judge0-llm-config .fields {
+    display: flex;
+    align-items: center;
+    gap: 0.001em;
+    margin: 0;
+    width: 100%;
+}
+
+
+/* Provider dropdown styling - fixed width on left */
+#judge0-llm-provider {
+    width: 150px;
+    flex-shrink: 0; /* Prevents dropdown from shrinking */
+}
+
+/* API key input group - takes remaining space */
+#judge0-llm-config .field:nth-child(2) {
+    flex-grow: 1; /* Takes remaining space */
+}
+
+#judge0-llm-config .ui.action.input {
+    width: 100%;
+}
+
+/* Button styling */
+#judge0-llm-config .ui.button {
+    margin-left: 0.25em;
+}
+
+/* Dark theme support */
+.inverted #judge0-llm-config {
+    border-color: rgba(255,255,255,.1);
+}
+
+/* Ensure chat messages don't overflow */
+#judge0-chat-messages {
+    padding-top: 0.5em;
+}

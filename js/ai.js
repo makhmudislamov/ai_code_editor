@@ -1,6 +1,8 @@
 "use strict";
 import theme from "./theme.js";
 import { sourceEditor } from "./ide.js";
+import { initializeLLMDropdown } from "./llm.js";
+
 
 const THREAD = [
     {
@@ -97,14 +99,30 @@ ${userInputValue}
             content: aiResponseValue
         });
 
-        // Display AI response with markdown and math rendering
-        aiMessage.innerHTML = DOMPurify.sanitize(aiResponseValue);
+
+        // Parse markdown
+        const markdownContent = marked.parse(aiResponseValue, {
+            gfm: true, // GitHub Flavored Markdown
+            breaks: true,
+            highlight: function(code, language) {
+                // Optional: Add syntax highlighting
+                return code;
+            }
+        });
+
+        // sanitize
+        const sanitizedContent = DOMPurify.sanitize(markdownContent);
+
+        // Set the content
+        aiMessage.innerHTML = sanitizedContent;
+
         renderMathInElement(aiMessage, {
             delimiters: [
                 { left: "\$$", right: "\$$", display: false },
                 { left: "\$$", right: "\$$", display: true }
             ]
         });
+
         aiMessage.innerHTML = marked.parse(aiMessage.innerHTML);
 
         messages.appendChild(aiMessage);
@@ -129,6 +147,8 @@ ${userInputValue}
 // Event Listeners
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("judge0-chat-form");
+
+    initializeLLMDropdown();
     
     // Handle form submission (Enter key and button click)
     form.addEventListener("submit", async function (event) {

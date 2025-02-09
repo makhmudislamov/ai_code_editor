@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" integrity="sha512-iWiuBS5nt6r60fCz26Nd0Zqe0nbk1ZTIQbl3Kv7kYsX+yKMUFHzjaH2+AnM6vp2Xs+gNmaBAVWJjSmuPw76Efg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" integrity="sha512-fHwaWebuwA7NSF5Qg/af4UeDx9XqUpYpOGgubo3yWu+b2IQR4UeQwbb42Ti7gVAjNtVoI/I9TEoYeu9omwcC6g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.3/purify.min.js" integrity="sha512-Ll+TuDvrWDNNRnFFIM8dOiw7Go7dsHyxRp4RutiIFW/wm3DgDmCnRZow6AqbXnCbpWu93yM1O34q+4ggzGeXVA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    <script type="module" src="js/llm.js"></script>
     <script>
         var require = {
             paths: {
@@ -180,11 +180,40 @@
     </div>
 
     <div id="judge0-chat-container" class="ui segment">
+        <div id="judge0-llm-config" class="ui basic segment">
+            <div class="ui form">
+                <div class="fields">
+                    <div class="field">
+                        <select id="judge0-llm-provider" class="ui search selection dropdown">
+                            <option value="">Select LLM Provider</option>
+                            <option value="openai-gpt-4o">GPT-4o</option>
+                            <option value="openai-gpt-4o-mini">GPT-4o mini</option>
+                            <option value="openai-o1">o1</option>
+                            <option value="claude-sonnet">Claude 3.5 Sonnet</option>
+                            <option value="claude-haiku">Claude 3.5 Haiku</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <div class="ui action input">
+                            <input type="password" id="judge0-api-key" placeholder="Enter API Key">
+                            <button class="ui primary labeled icon button" id="judge0-save-api-key">
+                                <i class="save icon"></i>
+                                Save
+                            </button>
+                            <button class="ui labeled icon button" id="judge0-delete-api-key">
+                                <i class="trash icon"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="judge0-chat-messages"></div>
         <div id="judge0-chat-input-container" class="ui basic segment">
             <form id="judge0-chat-form" class="ui fluid small right icon transparent input">
                 <input id="judge0-chat-user-input" type="text" placeholder="Ask AI">
-                <button type="submit" class="ui icon button">
+                <button type="submit" class="ui primary icon button">
                     <i class="arrow up icon"></i>
                 </button>
             </form>
