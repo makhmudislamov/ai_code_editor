@@ -3,85 +3,97 @@
 import ls from "./local_storage.js";
 import { LLMErrors } from "./llm_errors.js";
 
-const ValidationErrors = {
-    INVALID_FORMAT: "Invalid API key format",
-    INVALID_PROVIDER: "Invalid provider ID",
-    EMPTY_KEY: "API key cannot be empty",
-};
-
-// Key format patterns for each provider
+/**
+ * Key format validation patterns
+ */
 const KEY_PATTERNS = {
-    'openai-gpt-4o': /^sk-[A-Za-z0-9]{32,}$/,
-    'openai-gpt-4o-mini': /^sk-[A-Za-z0-9]{32,}$/,
-    'openai-o1': /^sk-[A-Za-z0-9]{32,}$/,
-    'claude-sonnet': /^sk-ant-[A-Za-z0-9]{32,}$/,
-    'claude-haiku': /^sk-ant-[A-Za-z0-9]{32,}$/
+    openai: /^sk-[A-Za-z0-9]{32,}$/,
+    claude: /^sk-ant-[A-Za-z0-9]{32,}$/
 };
 
+/**
+ * LLM Storage Management
+ */
 const LLMStorage = {
-    // Validate API key format
+    /**
+     * Validate API key format
+     */
     validateApiKey(providerId, apiKey) {
-        if (!apiKey || apiKey.trim() === '') {
+        // Check for empty key
+        if (!apiKey?.trim()) {
             throw new Error(LLMErrors.VALIDATION.EMPTY_KEY);
         }
 
-        // Provider-specific validation
-        if (providerId.includes('openai')) {
-            if (!apiKey.startsWith('sk-')) {
-                throw new Error(LLMErrors.VALIDATION.INVALID_KEY_FORMAT.openai);
-            }
-        } else if (providerId.includes('claude')) {
-            if (!apiKey.startsWith('sk-ant-')) {
-                throw new Error(LLMErrors.VALIDATION.INVALID_KEY_FORMAT.claude);
-            }
+        // Determine provider type and validate format
+        const providerType = providerId.includes('claude') ? 'claude' : 'openai';
+        const pattern = KEY_PATTERNS[providerType];
+
+        if (!pattern.test(apiKey)) {
+            throw new Error(LLMErrors.VALIDATION.INVALID_KEY_FORMAT[providerType]);
         }
 
         return true;
     },
 
-    // Store API key with validation
-    storeApiKey(providerId, apiKey) {
+    /**
+     * Store API key
+     */
+    async storeApiKey(providerId, apiKey) {
         try {
-            // Validate before storing
             this.validateApiKey(providerId, apiKey);
-
-            const storageKey = `judge0_llm_v1_${providerId}`;
+            const storageKey = this.getStorageKey(providerId);
             ls.set(storageKey, apiKey);
             return true;
         } catch (error) {
-            console.error('Storage failed:', error.message);
-            throw error; // Re-throw for UI handling
+            throw error;
         }
     },
 
-    // Existing methods...
+    /**
+     * Retrieve API key
+     */
     getApiKey(providerId) {
         try {
-            const storageKey = `judge0_llm_v1_${providerId}`;
-            return ls.get(storageKey);
+            const storageKey = this.getStorageKey(providerId);
+            const key = ls.get(storageKey);
+            
+            if (!key) {
+                throw new Error(LLMErrors.OPERATION.KEY_NOT_FOUND);
+            }
+            
+            return key;
         } catch (error) {
-            console.error('Retrieval failed:', error);
-            return null;
+            throw error;
         }
     },
 
+    /**
+     * Delete API key
+     */
     deleteApiKey(providerId) {
         try {
-            const storageKey = `judge0_llm_v1_${providerId}`;
+            const storageKey = this.getStorageKey(providerId);
             ls.del(storageKey);
             return true;
         } catch (error) {
-            console.error('Deletion failed:', error);
-            return false;
+            throw new Error(LLMErrors.STORAGE.DELETE_FAILED);
         }
     },
 
+    /**
+     * Check if key exists
+     */
     hasApiKey(providerId) {
-        const storageKey = `judge0_llm_v1_${providerId}`;
+        const storageKey = this.getStorageKey(providerId);
         return ls.get(storageKey) !== null;
+    },
+
+    /**
+     * Generate storage key
+     */
+    getStorageKey(providerId) {
+        return `judge0_llm_v1_${providerId}`;
     }
 };
-
-
 
 export default LLMStorage;

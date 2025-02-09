@@ -1,15 +1,16 @@
 "use strict";
 
-// Error message constants
+/**
+ * LLM Error and Message Constants
+ */
 const LLMErrors = {
     // Validation Errors
     VALIDATION: {
         EMPTY_PROVIDER: "Please select a provider",
         EMPTY_KEY: "Please enter an API key",
         INVALID_KEY_FORMAT: {
-            'openai': "Invalid OpenAI API key format. Should start with 'sk-'",
-            'claude': "Invalid Claude API key format. Should start with 'sk-ant-'",
-            DEFAULT: "Invalid API key format"
+            openai: "Invalid OpenAI API key format",
+            claude: "Invalid Claude API key format",
         }
     },
 
@@ -22,8 +23,6 @@ const LLMErrors = {
 
     // Storage Errors
     STORAGE: {
-        WRITE_FAILED: "Unable to store API key securely",
-        READ_FAILED: "Unable to retrieve API key",
         DELETE_FAILED: "Unable to remove API key"
     },
 
@@ -34,12 +33,17 @@ const LLMErrors = {
     }
 };
 
-// Error handler function
+/**
+ * Error Handler
+ * @param {Error|string} error - Error object or message
+ * @param {string} type - Error type (VALIDATION|OPERATION|STORAGE)
+ * @returns {string} User-friendly error message
+ */
 function handleLLMError(error, type) {
     if (typeof error === 'string') {
         return LLMErrors[type]?.[error] || error;
     }
-    return error.message || LLMErrors.OPERATION.DEFAULT;
+    return error.message || LLMErrors.OPERATION.SAVE_FAILED;
 }
 
 export { LLMErrors, handleLLMError };
