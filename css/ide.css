@@ -45,21 +45,6 @@
     }
 }
 
-/* LLM Config Section */
-#judge0-llm-config {
-    border-bottom: 1px solid rgba(34,36,38,.15);
-    margin: 0;
-    padding: 1em;
-    width: 100%;
-}
-
-#judge0-llm-config .fields {
-    display: flex;
-    align-items: center;
-    gap: 0.001em;
-    margin: 0;
-    width: 100%;
-}
 
 
 /* Provider dropdown styling - fixed width on left */
@@ -90,4 +75,40 @@
 /* Ensure chat messages don't overflow */
 #judge0-chat-messages {
     padding-top: 0.5em;
+}
+
+
+/* LLM Config Section */
+#judge0-llm-config .field #judge0-api-message {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+    padding: 0.5em !important;
+    transition: opacity 0.3s ease;
+    position: absolute !important;
+    left: -50% !important;
+    right: 0 !important;
+    width: 200% !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    border: 1px solid transparent !important;
+    text-align: center !important;
+    z-index: 1 !important;
+}
+
+/* Message States */
+#judge0-llm-config .field #judge0-api-message.success {
+    background-color: #21ba45 !important;
+    color: white !important;
+    border-color: #1eaa3d !important;
+}
+
+#judge0-llm-config .field #judge0-api-message.error {
+    background-color: #db2828 !important;
+    color: white !important;
+    border-color: #d01919 !important;
+}
+
+#judge0-llm-config .field #judge0-api-message.hidden {
+    display: none !important;
 }
