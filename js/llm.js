@@ -85,6 +85,7 @@ function initializeLLMControls() {
     const apiKeyInput = document.getElementById('judge0-api-key');
     const providerSelect = document.getElementById('judge0-llm-provider');
     const messageContainer = document.getElementById('judge0-api-message');
+    const deleteButton = document.getElementById('judge0-delete-api-key');
 
     
 
@@ -101,10 +102,32 @@ function initializeLLMControls() {
 
     // Function to set loading state
     function setLoading(isLoading) {
-        saveButton.classList.toggle('loading', isLoading);
+        // Add loading class and disable buttons
+        if (isLoading) {
+            saveButton.classList.add('loading', 'disabled');
+            deleteButton.classList.add('loading', 'disabled');
+            // Add Semantic UI's disabled class
+            providerSelect.closest('.dropdown').classList.add('disabled');
+        } else {
+            saveButton.classList.remove('loading', 'disabled');
+            deleteButton.classList.remove('loading', 'disabled');
+            providerSelect.closest('.dropdown').classList.remove('disabled');
+        }
+    
+        // Explicitly set disabled attribute
+        saveButton.disabled = isLoading;
+        deleteButton.disabled = isLoading;
         apiKeyInput.disabled = isLoading;
         providerSelect.disabled = isLoading;
-        saveButton.disabled = isLoading;
+    
+        // Prevent any clicks during loading
+        if (isLoading) {
+            const container = document.getElementById('judge0-llm-config');
+            container.style.pointerEvents = 'none';
+        } else {
+            const container = document.getElementById('judge0-llm-config');
+            container.style.pointerEvents = 'auto';
+        }
     }
 
     saveButton.addEventListener('click', async function(e) {
@@ -140,6 +163,46 @@ function initializeLLMControls() {
         } finally {
             // Reset loading state
             setLoading(false);
+        }
+    });
+
+
+    deleteButton.addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const selectedProvider = providerSelect.value;
+    
+        if (!selectedProvider) {
+            showMessage('Please select a provider', true);
+            return;
+        }
+    
+        if (!LLMStorage.hasApiKey(selectedProvider)) {
+            showMessage('No API key found for selected provider', true);
+            return;
+        }
+    
+        if (!confirm('Are you sure you want to delete this API key?')) {
+            return;
+        }
+    
+        // Use jQuery for consistency with existing codebase
+        $(deleteButton).addClass("loading");
+        $(saveButton).addClass("disabled");
+        $(apiKeyInput).prop('disabled', true);
+        $(providerSelect).closest('.dropdown').addClass('disabled');
+    
+        try {
+            LLMStorage.deleteApiKey(selectedProvider);
+            showMessage('API key deleted successfully');
+            apiKeyInput.value = '';
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            $(deleteButton).removeClass("loading");
+            $(saveButton).removeClass("disabled");
+            $(apiKeyInput).prop('disabled', false);
+            $(providerSelect).closest('.dropdown').removeClass('disabled');
         }
     });
 
