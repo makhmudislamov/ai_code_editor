@@ -1,6 +1,7 @@
 "use strict";
 
 import ls from "./local_storage.js";
+import { LLMErrors } from "./llm_errors.js";
 
 const ValidationErrors = {
     INVALID_FORMAT: "Invalid API key format",
@@ -20,19 +21,19 @@ const KEY_PATTERNS = {
 const LLMStorage = {
     // Validate API key format
     validateApiKey(providerId, apiKey) {
-        // Check for empty key
         if (!apiKey || apiKey.trim() === '') {
-            throw new Error(ValidationErrors.EMPTY_KEY);
+            throw new Error(LLMErrors.VALIDATION.EMPTY_KEY);
         }
 
-        // Check for valid provider
-        if (!KEY_PATTERNS[providerId]) {
-            throw new Error(ValidationErrors.INVALID_PROVIDER);
-        }
-
-        // Check key format
-        if (!KEY_PATTERNS[providerId].test(apiKey)) {
-            throw new Error(ValidationErrors.INVALID_FORMAT);
+        // Provider-specific validation
+        if (providerId.includes('openai')) {
+            if (!apiKey.startsWith('sk-')) {
+                throw new Error(LLMErrors.VALIDATION.INVALID_KEY_FORMAT.openai);
+            }
+        } else if (providerId.includes('claude')) {
+            if (!apiKey.startsWith('sk-ant-')) {
+                throw new Error(LLMErrors.VALIDATION.INVALID_KEY_FORMAT.claude);
+            }
         }
 
         return true;

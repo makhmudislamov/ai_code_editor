@@ -3,6 +3,7 @@
 import ls from "./local_storage.js";
 import LLMSecurity from "./llm_security.js";
 import LLMStorage from "./llm_storage.js";
+import { LLMErrors, handleLLMError } from "./llm_errors.js";
 
 // Storage and Security Constants
 const STORAGE_PREFIX = "judge0_llm_";
@@ -42,14 +43,6 @@ const LLM_PROVIDERS = [
     }
 ];
 
-// Error types
-const LLMErrors = {
-    INVALID_KEY: "Invalid API key format",
-    STORAGE_ERROR: "Failed to store API key",
-    KEY_NOT_FOUND: "No API key found for this provider",
-    ENCRYPTION_ERROR: "Failed to secure API key",
-    VALIDATION_ERROR: "API key validation failed"
-};
 
 // Helper function to generate storage key
 function getStorageKey(providerId) {
@@ -130,74 +123,76 @@ function initializeLLMControls() {
         }
     }
 
+    // Save button handler
     saveButton.addEventListener('click', async function(e) {
         e.preventDefault();
         
-        // Get values
         const apiKey = apiKeyInput.value.trim();
         const selectedProvider = providerSelect.value;
 
-        // Basic validation
+        // Validation with new error messages
         if (!selectedProvider) {
-            showMessage('Please select a provider', true);
+            showMessage(LLMErrors.VALIDATION.EMPTY_PROVIDER, true);
             return;
         }
 
         if (!apiKey) {
-            showMessage('Please enter an API key', true);
+            showMessage(LLMErrors.VALIDATION.EMPTY_KEY, true);
             return;
         }
 
-        // Set loading state
-        setLoading(true);
+        // Loading state
+        $(saveButton).addClass("loading");
+        $(deleteButton).addClass("disabled");
+        $(apiKeyInput).prop('disabled', true);
+        $(providerSelect).closest('.dropdown').addClass('disabled');
 
         try {
+            await new Promise(resolve => setTimeout(resolve, 800));
             await LLMStorage.storeApiKey(selectedProvider, apiKey);
-            showMessage('API key saved successfully');
-            
-            // Clear input after successful save
+            showMessage(LLMErrors.SUCCESS.SAVE);
             apiKeyInput.value = '';
-            
         } catch (error) {
-            showMessage(error.message, true);
+            showMessage(handleLLMError(error, 'OPERATION'), true);
         } finally {
-            // Reset loading state
-            setLoading(false);
+            $(saveButton).removeClass("loading");
+            $(deleteButton).removeClass("disabled");
+            $(apiKeyInput).prop('disabled', false);
+            $(providerSelect).closest('.dropdown').removeClass('disabled');
         }
     });
 
-
+    // Delete button handler
     deleteButton.addEventListener('click', async function(e) {
         e.preventDefault();
         
         const selectedProvider = providerSelect.value;
-    
+
         if (!selectedProvider) {
-            showMessage('Please select a provider', true);
+            showMessage(LLMErrors.VALIDATION.EMPTY_PROVIDER, true);
             return;
         }
-    
+
         if (!LLMStorage.hasApiKey(selectedProvider)) {
-            showMessage('No API key found for selected provider', true);
+            showMessage(LLMErrors.OPERATION.KEY_NOT_FOUND, true);
             return;
         }
-    
+
         if (!confirm('Are you sure you want to delete this API key?')) {
             return;
         }
-    
-        // Use jQuery for consistency with existing codebase
+
         $(deleteButton).addClass("loading");
         $(saveButton).addClass("disabled");
         $(apiKeyInput).prop('disabled', true);
         $(providerSelect).closest('.dropdown').addClass('disabled');
-    
+
         try {
-            LLMStorage.deleteApiKey(selectedProvider);
-            showMessage('API key deleted successfully');
+            await LLMStorage.deleteApiKey(selectedProvider);
+            showMessage(LLMErrors.SUCCESS.DELETE);
             apiKeyInput.value = '';
         } catch (error) {
-            showMessage(error.message, true);
+            showMessage(handleLLMError(error, 'STORAGE'), true);
         } finally {
             $(deleteButton).removeClass("loading");
             $(saveButton).removeClass("disabled");
