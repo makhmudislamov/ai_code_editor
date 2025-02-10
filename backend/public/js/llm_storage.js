@@ -2,13 +2,24 @@
 
 import ls from "./local_storage.js";
 import { LLMErrors } from "./llm_errors.js";
+import cryptoHandler from "./llm_crypto.js";
 
 /**
  * Key format validation patterns
  */
+// const KEY_PATTERNS = {
+//     openai: /^sk-[A-Za-z0-9]{32,}$/,
+//     claude: /^sk-ant-[A-Za-z0-9]{32,}$/
+// };
+
+// const KEY_PATTERNS = {
+//     openai: /^sk-[A-Za-z0-9_\-]{32,}$/,  // allow longer keys and more characters
+//     claude: /^sk-ant-[A-Za-z0-9_\-]{32,}$/
+// };
+
 const KEY_PATTERNS = {
-    openai: /^sk-[A-Za-z0-9]{32,}$/,
-    claude: /^sk-ant-[A-Za-z0-9]{32,}$/
+    openai: /^sk-.*$/,  // Accept any key that starts with sk-
+    claude: /^sk-ant-.*$/
 };
 
 /**
@@ -36,33 +47,43 @@ const LLMStorage = {
     },
 
     /**
-     * Store API key
+     * Store API key with encryption
      */
     async storeApiKey(providerId, apiKey) {
         try {
+            // Validate first
             this.validateApiKey(providerId, apiKey);
+            
+            // Encrypt
+            const encryptedKey = await cryptoHandler.encrypt(apiKey);
+            
+            // Store encrypted key
             const storageKey = this.getStorageKey(providerId);
-            ls.set(storageKey, apiKey);
+            ls.set(storageKey, encryptedKey);
+            
             return true;
         } catch (error) {
+            console.error('Storage failed:', error);
             throw error;
         }
     },
 
     /**
-     * Retrieve API key
+     * Retrieve and decrypt API key
      */
-    getApiKey(providerId) {
+    async getApiKey(providerId) {
         try {
             const storageKey = this.getStorageKey(providerId);
-            const key = ls.get(storageKey);
+            const encryptedKey = ls.get(storageKey);
             
-            if (!key) {
+            if (!encryptedKey) {
                 throw new Error(LLMErrors.OPERATION.KEY_NOT_FOUND);
             }
             
-            return key;
+            // Decrypt and return
+            return await cryptoHandler.decrypt(encryptedKey);
         } catch (error) {
+            console.error('Retrieval failed:', error);
             throw error;
         }
     },
@@ -95,5 +116,6 @@ const LLMStorage = {
         return `judge0_llm_v1_${providerId}`;
     }
 };
+
 
 export default LLMStorage;
