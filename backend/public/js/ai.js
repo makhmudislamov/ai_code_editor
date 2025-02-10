@@ -40,7 +40,24 @@ If their message is unrelated to the code, focus solely on their conversational 
 ];
 
 
-// Single func for handling message processing
+function shouldIncludeCode(message) {
+    // Keywords that suggest code context is needed
+    const codeRelatedKeywords = [
+        'explain this code',
+        'explain the code',
+        'this code',
+        'fix this',
+        'debug',
+        'optimize',
+        'improve',
+        'what does this do',
+        'how does this work'
+    ];
+
+    return codeRelatedKeywords.some(keyword => 
+        message.toLowerCase().includes(keyword.toLowerCase())
+    );
+}
 
 async function handleChatMessage(userInputValue) {
     const userInput = document.getElementById("judge0-chat-user-input");
@@ -49,6 +66,18 @@ async function handleChatMessage(userInputValue) {
     // Get selected model from dropdown
     const modelSelect = document.getElementById('judge0-llm-provider');
     const selectedModel = modelSelect.value;
+
+    // Get code from editor
+    const codeContext = shouldIncludeCode(userInputValue) ? 
+        sourceEditor.getValue() : null;
+
+    // console.log('AI Layer:', {
+    //     message: userInputValue,
+    //     hasCode: !!codeContext,
+    //     codePreview: codeContext?.substring(0, 100)
+    // });
+    
+
 
     // Input validation
     if (!userInputValue || userInputValue.trim() === "") {
@@ -102,15 +131,15 @@ ${userInputValue}
     }
 
     try {
-        const response = await llmApi.sendChatMessage(userInputValue, selectedModel);
+        const response = await llmApi.sendChatMessage(
+            userInputValue, 
+            selectedModel,
+            codeContext
+        );
         
         // Extract the message content from the correct path
         const aiResponseValue = response.data.choices[0].message.content;
-        console.log('LLM Response Details:', {
-            provider: response.data.provider,
-            model: response.data.model,
-            selectedModel: selectedModel  // What we requested
-        });
+
     
         THREAD.push({
             role: "assistant",

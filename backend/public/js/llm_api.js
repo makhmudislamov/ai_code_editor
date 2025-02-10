@@ -9,9 +9,13 @@ class LLMApi {
         this.baseUrl = '/api';
     }
 
-    async sendChatMessage(message, model) {
+    async sendChatMessage(message, model, codeContext = null) {
         try {
-            console.log('Sending chat request:', { message, model });
+            // console.log('API Layer:', {
+            //     message,
+            //     model,
+            //     hasCode: !!codeContext,
+            // });
 
             const response = await fetch(`${this.baseUrl}/chat`, {
                 method: 'POST',
@@ -20,7 +24,8 @@ class LLMApi {
                 },
                 body: JSON.stringify({
                     message,
-                    model
+                    model,
+                    codeContext  // Add code context to request
                 })
             });
 
@@ -29,7 +34,7 @@ class LLMApi {
             }
 
             const data = await response.json();
-            console.log('Response received:', data);  // Debug log
+            // console.log('Response received:', data);  // Debug log
 
             return data;
         } catch (error) {

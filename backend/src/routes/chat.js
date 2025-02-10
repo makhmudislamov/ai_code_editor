@@ -7,11 +7,12 @@ const { APIError } = require('../utils/error');
 // Regular chat endpoint (existing)
 router.post('/chat', async (req, res) => {
     try {
-        const { message, model } = req.body;
-        console.log('Received request:', { message, model });  // Debug log
+        const { message, model, codeContext } = req.body
+        // console.log('Received request:', { message, model, hasCode: !!codeContext });
         
-        const response = await routerService.sendMessage(message, model);
-        console.log('OpenRouter response:', response);  // Debug log
+        const response = await routerService.sendMessage(message, model, codeContext);  // Pass codeContext
+        
+        // console.log('OpenRouter response:', response);  // Debug log
         
         res.json({ success: true, data: response });
     } catch (error) {

@@ -1,4 +1,3 @@
-// backend/src/services/router.js
 const config = require('../config');
 // const fetch = require('node-fetch');
 
@@ -21,17 +20,22 @@ class OpenRouterService {
     }
 
 
-    async sendMessage(message, providerId) {
+    async sendMessage(message, providerId, codeContext = null) {
         try {
             const modelName = this.getModelName(providerId);
 
-                    // Add logging here, before the fetch
-            // console.log('Sending to OpenRouter:', {
+            // Prepare message content based on whether code context exists
+            const messageContent = codeContext ? 
+            `Code:\n${codeContext}\n\nQuestion: ${message}` : 
+            message;
+
+            // console.log('Router Layer:', {
             //     model: modelName,
-            //     message: message,
-            //     providerId: providerId
+            //     hasContext: !!codeContext,
+            //     finalMessage: messageContent.substring(0, 100) + '...'
             // });
-            
+
+
             const response = await fetch(OPENROUTER_URL, {
                 method: 'POST',
                 headers: {
@@ -45,7 +49,7 @@ class OpenRouterService {
                     messages: [
                         {
                             role: 'user',
-                            content: message
+                            content: messageContent
                         }
                     ]
                 })
