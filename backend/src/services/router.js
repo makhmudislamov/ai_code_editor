@@ -13,7 +13,7 @@ class OpenRouterService {
         const modelMap = {
             'openai-gpt-4o': 'openai/gpt-4o',
             'openai-gpt-4o-mini': 'openai/gpt-4o-mini',
-            'openai-o1': 'openai/o1',
+            'openai-o1': "openai/o1",
             'claude-sonnet': 'anthropic/claude-3-sonnet',
             'claude-haiku': 'anthropic/claude-3-haiku'
         };
@@ -24,6 +24,13 @@ class OpenRouterService {
     async sendMessage(message, providerId) {
         try {
             const modelName = this.getModelName(providerId);
+
+                    // Add logging here, before the fetch
+            // console.log('Sending to OpenRouter:', {
+            //     model: modelName,
+            //     message: message,
+            //     providerId: providerId
+            // });
             
             const response = await fetch(OPENROUTER_URL, {
                 method: 'POST',
@@ -42,10 +49,15 @@ class OpenRouterService {
                         }
                     ]
                 })
+
             });
 
+
+
             if (!response.ok) {
-                throw new Error('OpenRouter API Error');
+                // const errorData = await response.json();
+                // console.log('OpenRouter Error Response:', errorData);
+                throw new Error(`OpenRouter API Error: ${JSON.stringify(errorData)}`);
             }
 
             return await response.json();

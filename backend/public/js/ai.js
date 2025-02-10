@@ -46,9 +46,20 @@ async function handleChatMessage(userInputValue) {
     const userInput = document.getElementById("judge0-chat-user-input");
     const form = document.getElementById("judge0-chat-form");
 
+    // Get selected model from dropdown
+    const modelSelect = document.getElementById('judge0-llm-provider');
+    const selectedModel = modelSelect.value;
+
     // Input validation
     if (!userInputValue || userInputValue.trim() === "") {
         return false;
+    }
+
+
+    // Validate model selection
+    if (!selectedModel) {
+        showMessage('Please select an LLM provider first', true);
+        return;
     }
 
     // Set loading state
@@ -91,11 +102,15 @@ ${userInputValue}
     }
 
     try {
-        const response = await llmApi.sendChatMessage(userInputValue, 'openai-gpt-4o-mini');
+        const response = await llmApi.sendChatMessage(userInputValue, selectedModel);
         
         // Extract the message content from the correct path
         const aiResponseValue = response.data.choices[0].message.content;
-        console.log('AI Response:', aiResponseValue); // Should show "Hi! How can I assist you today?"
+        console.log('LLM Response Details:', {
+            provider: response.data.provider,
+            model: response.data.model,
+            selectedModel: selectedModel  // What we requested
+        });
     
         THREAD.push({
             role: "assistant",

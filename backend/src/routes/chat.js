@@ -8,10 +8,10 @@ const { APIError } = require('../utils/error');
 router.post('/chat', async (req, res) => {
     try {
         const { message, model } = req.body;
-        // console.log('Received request:', { message, model });  // Debug log
+        console.log('Received request:', { message, model });  // Debug log
         
         const response = await routerService.sendMessage(message, model);
-        // console.log('OpenRouter response:', response);  // Debug log
+        console.log('OpenRouter response:', response);  // Debug log
         
         res.json({ success: true, data: response });
     } catch (error) {
